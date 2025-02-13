@@ -24,40 +24,40 @@ jobs:
       - name: Run naming convention check
         run: |
           echo "Checking C++ naming conventions..."
-          python3 <<EOF
-import os
-import re
+          python3 - <<'EOF'
+          import os
+          import re
 
-# Define regex patterns
-patterns = {
-    "Member Variable": r"\bm[A-Z][a-zA-Z0-9_]*",
-    "Parameter": r"\bp[A-Z][a-zA-Z0-9_]*",
-    "Local Variable": r"\bl[A-Z][a-zA-Z0-9_]*",
-    "Constant": r"\bK[A-Z][a-zA-Z0-9_]*",
-    "Static Variable": r"\bs[A-Z][a-zA-Z0-9_]*",
-    "Class Name": r"\b[A-Z][a-zA-Z0-9_]*\s*{",
-    "Function Name": r"\b[a-z][a-zA-Z0-9_]*\s*\(",
-}
+          # Define regex patterns
+          patterns = {
+              "Member Variable": r"\bm[A-Z][a-zA-Z0-9_]*",
+              "Parameter": r"\bp[A-Z][a-zA-Z0-9_]*",
+              "Local Variable": r"\bl[A-Z][a-zA-Z0-9_]*",
+              "Constant": r"\bK[A-Z][a-zA-Z0-9_]*",
+              "Static Variable": r"\bs[A-Z][a-zA-Z0-9_]*",
+              "Class Name": r"\b[A-Z][a-zA-Z0-9_]*\s*{",
+              "Function Name": r"\b[a-z][a-zA-Z0-9_]*\s*\(",
+          }
 
-errors = []
+          errors = []
 
-# Walk through the repository and check C++ files
-for root, _, files in os.walk("."):
-    for file in files:
-        if file.endswith(".cpp") or file.endswith(".h"):
-            with open(os.path.join(root, file), "r", encoding="utf-8") as f:
-                lines = f.readlines()
-                for i, line in enumerate(lines, start=1):
-                    for category, pattern in patterns.items():
-                        if re.search(pattern, line) is None:
-                            errors.append(f"{file}:{i}: Naming violation in {category}: {line.strip()}")
+          # Walk through the repository and check C++ files
+          for root, _, files in os.walk("."):
+              for file in files:
+                  if file.endswith(".cpp") or file.endswith(".h"):
+                      with open(os.path.join(root, file), "r", encoding="utf-8") as f:
+                          lines = f.readlines()
+                          for i, line in enumerate(lines, start=1):
+                              for category, pattern in patterns.items():
+                                  if not re.search(pattern, line):
+                                      errors.append(f"{file}:{i}: Naming violation in {category}: {line.strip()}")
 
-# Output results
-if errors:
-    print("Naming convention violations found:")
-    for error in errors:
-        print(error)
-    exit(1)
-else:
-    print("All naming conventions passed!")
-EOF
+          # Output results
+          if errors:
+              print("Naming convention violations found:")
+              for error in errors:
+                  print(error)
+              exit(1)
+          else:
+              print("All naming conventions passed!")
+          EOF
