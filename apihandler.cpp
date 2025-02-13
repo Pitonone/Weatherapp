@@ -49,11 +49,16 @@ void ApiHandler::sendWeatherRequest(QNetworkReply *pReply)
             connect(mManager, &QNetworkAccessManager::finished, this, &ApiHandler::processDone);
             mManager->get(lRequest);
         }
+        else
+        {
+            emit sendErrorMessage("Error While Parsing Json");
+
+        }
 
     }
     else
     {
-        qDebug() << "Doesent Work Cause" << pReply->errorString();
+        emit sendErrorMessage(pReply->errorString());
     }
 
 }
@@ -77,10 +82,15 @@ void ApiHandler::processDone(QNetworkReply *pReply)
             lData.mWeather = lDescription;
             emit sendDoneMessage(lData);
         }
+        else
+        {
+            emit sendErrorMessage("Error while Parsing Json");
+
+        }
     }
     else
     {
-        qDebug() << "Doesent Work Cause" << pReply->errorString();
+        emit sendErrorMessage(pReply->errorString());
     }
 }
 
