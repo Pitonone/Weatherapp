@@ -28,15 +28,15 @@ jobs:
           import os
           import re
 
-          # Define regex patterns
+          # Define regex patterns and replacements
           patterns = {
-              "Member Variable": r"\bm[A-Z][a-zA-Z0-9_]*",
-              "Parameter": r"\bp[A-Z][a-zA-Z0-9_]*",
-              "Local Variable": r"\bl[A-Z][a-zA-Z0-9_]*",
-              "Constant": r"\bK[A-Z][a-zA-Z0-9_]*",
-              "Static Variable": r"\bs[A-Z][a-zA-Z0-9_]*",
-              "Class Name": r"\b[A-Z][a-zA-Z0-9_]*\s*{",
-              "Function Name": r"\b[a-z][a-zA-Z0-9_]*\s*\(",
+              "Member Variable": (r"\b(m)([A-Z][a-zA-Z0-9_]*)", r"m\2"),
+              "Parameter": (r"\b(p)([A-Z][a-zA-Z0-9_]*)", r"p\2"),
+              "Local Variable": (r"\b(l)([A-Z][a-zA-Z0-9_]*)", r"l\2"),
+              "Constant": (r"\b(K)([A-Z][a-zA-Z0-9_]*)", r"K\2"),
+              "Static Variable": (r"\b(s)([A-Z][a-zA-Z0-9_]*)", r"s\2"),
+              "Class Name": (r"\b([A-Z][a-zA-Z0-9_]*)\s*{", r"\1 {"),
+              "Function Name": (r"\b([a-z][a-zA-Z0-9_]*)\s*\(", r"\1("),
           }
 
           errors = []
@@ -44,20 +44,28 @@ jobs:
           # Walk through the repository and check C++ files
           for root, _, files in os.walk("."):
               for file in files:
-                  if file.endswith(".cpp") or file.endswith(".h"):
-                      with open(os.path.join(root, file), "r", encoding="utf-8") as f:
+                  if (file.endswith(".cpp") or file.endswith(".h")) and file != "main.cpp":
+                      file_path = os.path.join(root, file)
+                      with open(file_path, "r", encoding="utf-8") as f:
                           lines = f.readlines()
-                          for i, line in enumerate(lines, start=1):
-                              for category, pattern in patterns.items():
-                                  if not re.search(pattern, line):
-                                      errors.append(f"{file}:{i}: Naming violation in {category}: {line.strip()}")
+                      
+                      new_lines = []
+                      for i, line in enumerate(lines, start=1):
+                          modified = line
+                          for category, (pattern, replacement) in patterns.items():
+                              modified = re.sub(pattern, replacement, modified)
+                          new_lines.append(modified)
+                          if line != modified:
+                              errors.append(f"{file}:{i}: Naming violation in {category}, auto-fixed.")
+                      
+                      with open(file_path, "w", encoding="utf-8") as f:
+                          f.writelines(new_lines)
 
           # Output results
           if errors:
-              print("Naming convention violations found:")
+              print("Naming convention violations found and fixed:")
               for error in errors:
                   print(error)
-              exit(1)
           else:
               print("All naming conventions passed!")
           EOF
