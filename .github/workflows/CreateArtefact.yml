@@ -27,13 +27,13 @@ jobs:
         run: |
           mkdir build
           cd build
-          qmake ../your_project.pro  # Adjust to your actual .pro file
+          qmake Wheatherapp.pro  # Adjust to your actual .pro file
           mingw32-make
 
       - name: Deploy Qt Dependencies
         run: |
           cd build
-          windeployqt --release your_project.exe  # Replace with actual exe name
+          windeployqt Wheatherapp.exe  # Replace with actual exe name
 
       - name: Package Executable
         run: |
