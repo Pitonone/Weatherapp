@@ -37,15 +37,14 @@ jobs:
               "Static Variable": r"\bs[A-Z][a-zA-Z0-9_]*",
               "Class Name": r"\b[A-Z][a-zA-Z0-9_]*\s*{",
               "Function Name": r"\b[a-z][a-zA-Z0-9_]*\s*\(",
-              "Braces New Line": r"[^\n]\s*{",
-              "Spacing Inside Parentheses": r"\(\S|\S\)"
+              "Braces New Line": r"[^\n]\s*{"
           }
 
           corrections = {
               "Braces New Line": (r"([^\n])\s*{", r"\1\n{"),
-              "Spacing Inside Parentheses": (r"\(\s*(\S.*?)\s*\)", r"( \1 )"),
-              "Ensure Whitespace Before Parentheses Content": (r"\((\S)", r"( \1"),
-              "Ensure Whitespace After Parentheses Content": (r"(\S)\)", r"\1 )")
+              "Ensure Whitespace Inside Parentheses": (r"\(\s*(\S.*?)\s*\)", r"( \1 )"),
+              "Ensure Whitespace After Opening Parenthesis": (r"\(\s*(\S)", r"( \1"),
+              "Ensure Whitespace Before Closing Parenthesis": (r"(\S)\s*\)", r"\1 )")
           }
 
           errors = []
