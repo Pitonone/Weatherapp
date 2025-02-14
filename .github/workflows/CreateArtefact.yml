@@ -27,19 +27,19 @@ jobs:
         run: |
           mkdir build
           cd build
-          qmake ../your_project.pro -r -spec win32-g++ CONFIG+=release
+          qmake ../Weatherapp.pro -r -spec win32-g++ CONFIG+=release
           dir  # Check if Makefile exists
           mingw32-make || mingw-make  # Run correct MinGW make command
 
       - name: Deploy Qt Dependencies
         run: |
           cd build
-          windeployqt --release your_project.exe  # Replace with actual .exe name
+          windeployqt Weatherapp.exe  # Replace with actual .exe name
 
       - name: Package Executable
         run: |
           mkdir release
-          mv build/your_project.exe release/
+          mv build/WeatherApp.exe release/
           mv build/*.dll release/
           tar -czvf release.tar.gz release/
 
