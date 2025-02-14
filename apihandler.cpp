@@ -40,14 +40,22 @@ void ApiHandler::sendWeatherRequest(QNetworkReply *pReply)
             QString lLon = QString::number(lObject["lon"].toDouble());
             QUrl lUrl("https://api.openweathermap.org/data/2.5/weather");
             QUrlQuery lQuery;
-            lQuery.addQueryItem("lat", lLat);
-            lQuery.addQueryItem("lon", lLon);
-            lQuery.addQueryItem("appid", mAPIkey);
-            lQuery.addQueryItem("units", "metric");
-            lUrl.setQuery(lQuery);
-            QNetworkRequest lRequest(lUrl);
-            connect(mManager, &QNetworkAccessManager::finished, this, &ApiHandler::processDone);
-            mManager->get(lRequest);
+            if (!(lLat == "0"&&lLon == "0"))
+            {
+                lQuery.addQueryItem("lat", lLat);
+                lQuery.addQueryItem("lon", lLon);
+                lQuery.addQueryItem("appid", mAPIkey);
+                lQuery.addQueryItem("units", "metric");
+                lUrl.setQuery(lQuery);
+                QNetworkRequest lRequest(lUrl);
+                connect(mManager, &QNetworkAccessManager::finished, this, &ApiHandler::processDone);
+                mManager->get(lRequest);
+            }
+            else
+            {
+                emit sendErrorMessage("Invalid City Name");
+            }
+
         }
         else
         {
@@ -76,7 +84,6 @@ void ApiHandler::processDone(QNetworkReply *pReply)
             QJsonObject lObject = lDocument.object();
             QString lDescription = lObject["weather"].toArray().first().toObject()["description"].toString();
             QString lTemperature = QString::number(lObject["main"].toObject().value("temp").toDouble());
-            qDebug() << lDescription << lTemperature;
             Data lData;
             lData.mTemperature = lTemperature;
             lData.mWeather = lDescription;

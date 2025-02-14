@@ -235,6 +235,13 @@ void MainWindow::showErrorMessage(QString pErrorMessage)
 
 void MainWindow::getWeather()
 {
-    mApiHandler->getData(ui->mCityLineEdit->text(), mCountryCodeMap.value(ui->mCountryBox->currentText()));
+    if (ui->mCityLineEdit->text() == "")
+    {
+        showErrorMessage("City name cannot be empty");
+    }
+    else
+    {
+        mApiHandler->getData(ui->mCityLineEdit->text(), mCountryCodeMap.value(ui->mCountryBox->currentText()));
+    }
 }
 
