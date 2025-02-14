@@ -17,7 +17,7 @@ jobs:
       - name: Set up Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: '5.15.2'  # Adjust to your Qt version
+          version: '5.15.2'
           host: 'windows'
           target: 'desktop'
           arch: 'win64_mingw81'
@@ -27,13 +27,14 @@ jobs:
         run: |
           mkdir build
           cd build
-          qmake ./Wheatherapp.pro  # Adjust to your actual .pro file
-          mingw32-make
+          qmake ../your_project.pro -r -spec win32-g++ CONFIG+=release
+          dir  # Check if Makefile exists
+          mingw32-make || mingw-make  # Run correct MinGW make command
 
       - name: Deploy Qt Dependencies
         run: |
           cd build
-          windeployqt Wheatherapp.exe  # Replace with actual exe name
+          windeployqt --release your_project.exe  # Replace with actual .exe name
 
       - name: Package Executable
         run: |
