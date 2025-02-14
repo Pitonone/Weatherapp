@@ -13,15 +13,15 @@ void ApiHandler::getData(QString pCityname, QString pCountryCode)
 
 void ApiHandler::sendGeoRequest(QString pCityname, QString pCountryCode)
 {
-    QUrl lUrl("http://api.openweathermap.org/geo/1.0/direct");
+    QUrl lUrl( "http://api.openweathermap.org/geo/1.0/direct" );
     QUrlQuery lQuery;
-    lQuery.addQueryItem("q", QString("%1,%2").arg(pCityname).arg(pCountryCode));
-    lQuery.addQueryItem("limit", "1");
-    lQuery.addQueryItem("appid", mAPIkey);
-    lUrl.setQuery(lQuery);
-    QNetworkRequest lRequest(lUrl);
-    connect(mManager, &QNetworkAccessManager::finished, this, &ApiHandler::sendWeatherRequest);
-    mManager->get(lRequest);
+    lQuery.addQueryItem( "q", QString( "%1,%2" ).arg( pCityname ).arg( pCountryCode ) );
+    lQuery.addQueryItem( "limit", "1" );
+    lQuery.addQueryItem( "appid", mAPIkey );
+    lUrl.setQuery( lQuery );
+    QNetworkRequest lRequest( lUrl );
+    connect( mManager, &QNetworkAccessManager::finished, this, &ApiHandler::sendWeatherRequest );
+    mManager->get( lRequest );
 }
 
 void ApiHandler::sendWeatherRequest(QNetworkReply *pReply)
