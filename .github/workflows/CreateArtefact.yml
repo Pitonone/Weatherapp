@@ -1,0 +1,60 @@
+name: Build Qt5 Windows Executable
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '5.15.2'  # Change to your Qt version
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2019_64'  # Change according to your compiler
+          cache: true
+
+      - name: Configure and Build
+        run: |
+          mkdir build
+          cd build
+          qmake ../your_project.pro
+          nmake  # Change to mingw32-make if using MinGW
+
+      - name: Deploy Qt Dependencies
+        run: |
+          cd build
+          windeployqt --release your_executable.exe  # Replace with your actual .exe name
+
+      - name: Package Executable
+        run: |
+          mkdir release
+          mv build/your_executable.exe release/
+          mv build/*.dll release/
+          tar -czvf release.tar.gz release/
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Qt5-Windows-Executable
+          path: release/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref == 'refs/heads/main'
+        with:
+          files: release.tar.gz
+          tag_name: v1.0.${{ github.run_number }}
+          name: "Release v1.0.${{ github.run_number }}"
+          body: "Automatically generated release."
+          draft: false
+          prerelease: false
