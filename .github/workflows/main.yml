@@ -1,4 +1,4 @@
-name: Check Naming Convention
+name: C++ Qt Naming Convention Check
 
 on:
   pull_request:
@@ -44,7 +44,8 @@ jobs:
           corrections = {
               "Braces New Line": (r"([^\n])\s*{", r"\1\n{"),
               "Spacing Inside Parentheses": (r"\(\s*(\S.*?)\s*\)", r"( \1 )"),
-              "Ensure Whitespace Inside Parentheses": (r"\((\S)", r"( \1"), (r"(\S)\)", r"\1 )")
+              "Ensure Whitespace Before Parentheses Content": (r"\((\S)", r"( \1"),
+              "Ensure Whitespace After Parentheses Content": (r"(\S)\)", r"\1 )")
           }
 
           errors = []
@@ -63,12 +64,8 @@ jobs:
                           for category, pattern in patterns.items():
                               if re.search(pattern, line) is None:
                                   errors.append(f"{file}:{i}: Naming violation in {category}: {line.strip()}")
-                          for category, correction in corrections.items():
-                              if isinstance(correction, tuple) and len(correction) == 2:
-                                  line = re.sub(correction[0], correction[1], line)
-                              elif isinstance(correction, tuple) and len(correction) == 3:
-                                  line = re.sub(correction[0], correction[1], line)
-                                  line = re.sub(correction[2], correction[3], line)
+                          for category, (pattern, replacement) in corrections.items():
+                              line = re.sub(pattern, replacement, line)
                           corrected_lines.append(line)
 
                       with open(file_path, "w", encoding="utf-8") as f:
