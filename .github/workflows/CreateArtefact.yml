@@ -37,7 +37,7 @@ jobs:
           # Add any other necessary files
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3  # Updated to the latest version
         with:
           name: WeatherApp
           path: output/
