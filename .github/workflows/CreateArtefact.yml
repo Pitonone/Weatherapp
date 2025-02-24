@@ -1,61 +1,48 @@
-name: Build Qt5 Windows Executable (MinGW)
+name: Build Qt Project
 
 on:
   push:
     branches:
       - main
   pull_request:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      # Check out the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Set up Qt
-        uses: jurplel/install-qt-action@v3
+      # Set up MinGW
+      - name: Set up MinGW
+        uses: msys2/setup-msys2-action@v2
         with:
-          version: '5.15.2'
-          host: 'windows'
-          target: 'desktop'
-          arch: 'win64_mingw81'
-          cache: true
+          update: true
 
-      - name: Configure and Build (MinGW)
+      # Install Qt and MinGW dependencies
+      - name: Install Qt and MinGW dependencies
         run: |
-          mkdir build
-          cd build
-          echo "Current directory: $(pwd)"  # Debugging output
-          qmake ../Weatherapp.pro -r -spec win32-g++ CONFIG+=release  # Use qmake to generate Makefile and build
-          qmake --build .  # This will automatically build the project
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm mingw-w64-x86_64-qt5 mingw-w64-x86_64-gcc
 
-      - name: Deploy Qt Dependencies
+      # Set up the environment for Qt and MinGW
+      - name: Add MinGW to PATH
+        run: echo "C:\\msys64\\mingw64\\bin" >> $GITHUB_PATH
+
+      # Build the Qt project
+      - name: Build the Qt project
         run: |
-          cd build
-          windeployqt WeatherApp.exe  # Ensure this is the correct executable name
+          cd ${{ github.workspace }}
+          qmake Weatherapp.pro -spec win32-g++
+          mingw32-make
 
-      - name: Package Executable
-        run: |
-          mkdir release
-          mv build/WeatherApp.exe release/  # Move executable
-          mv build/*.dll release/  # Move necessary DLLs
-          tar -czvf release.tar.gz release/
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      # Upload the built executable
+      - name: Upload executable
+        uses: actions/upload-artifact@v3
         with:
-          name: Qt5-Windows-Executable
-          path: release/
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        if: github.ref == 'refs/heads/main'
-        with:
-          files: release.tar.gz
-          tag_name: v1.0.${{ github.run_number }}
-          name: "Release v1.0.${{ github.run_number }}"
-          body: "Automatically generated release."
-          draft: false
-          prerelease: false
+          name: Weatherapp.exe
+          path: Weatherapp.exe
