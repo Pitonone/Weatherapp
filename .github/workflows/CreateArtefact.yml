@@ -24,38 +24,34 @@ jobs:
           cache: true
 
       - name: Configure and Build (MinGW)
-        working-directory: ${{ github.workspace }}  # Run from the root directory
         run: |
           mkdir build
-          cd build
-          qmake ../Weatherapp.pro -r -spec win32-g++ CONFIG+=release  # Use correct path
+          qmake Weatherapp.pro -r -spec win32-g++ CONFIG+=release  # Directly reference the .pro file
           dir  # Verify Makefile exists
           mingw32-make  # Only use mingw32-make
 
       - name: Deploy Qt Dependencies
-        working-directory: ${{ github.workspace }}/build
         run: |
-          windeployqt WeatherApp.exe  # Ensure the correct executable name is used
+          windeployqt build/WeatherApp.exe  # Ensure the correct path and name for your .exe
 
       - name: Package Executable
-        working-directory: ${{ github.workspace }}/build
         run: |
           mkdir release
-          mv WeatherApp.exe release/  # Moving the executable
-          mv *.dll release/  # Moving necessary DLLs
+          mv build/WeatherApp.exe release/  # Moving executable
+          mv build/*.dll release/  # Moving necessary DLLs
           tar -czvf release.tar.gz release/
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Qt5-Windows-Executable
-          path: build/release/
+          path: release/
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         if: github.ref == 'refs/heads/main'
         with:
-          files: build/release.tar.gz
+          files: release.tar.gz
           tag_name: v1.0.${{ github.run_number }}
           name: "Release v1.0.${{ github.run_number }}"
           body: "Automatically generated release."
