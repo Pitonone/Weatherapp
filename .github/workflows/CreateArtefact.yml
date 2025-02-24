@@ -1,48 +1,43 @@
-name: Build Qt Project
+name: Build Qt Application
 
 on:
   push:
     branches:
       - main
   pull_request:
-    branches:
-      - main
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-      # Check out the code from the repository
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Set up MinGW
-      - name: Set up MinGW
-        uses: msys2/setup-msys2-action@v2
+      - name: Install Qt 5.12
+        uses: jurplel/install-qt-action@v2
         with:
-          update: true
+          qt-version: '5.12.12'  # Specify the Qt version here
+          qt-archive: 'qt5'      # Specify the Qt archive name
 
-      # Install Qt and MinGW dependencies
-      - name: Install Qt and MinGW dependencies
+      - name: Install Dependencies
         run: |
-          pacman -Syu --noconfirm
-          pacman -S --noconfirm mingw-w64-x86_64-qt5 mingw-w64-x86_64-gcc
+          choco install mingw --version=8.1.0  # Install MinGW for building
 
-      # Set up the environment for Qt and MinGW
-      - name: Add MinGW to PATH
-        run: echo "C:\\msys64\\mingw64\\bin" >> $GITHUB_PATH
-
-      # Build the Qt project
-      - name: Build the Qt project
+      - name: Build Application
         run: |
-          cd ${{ github.workspace }}
-          qmake Weatherapp.pro -spec win32-g++
+          qmake Weatherapp.pro CONFIG+=release
           mingw32-make
 
-      # Upload the built executable
-      - name: Upload executable
-        uses: actions/upload-artifact@v3
+      - name: Package Application
+        run: |
+          mkdir output
+          cp -r Weatherapp.exe output/
+          cp -r *.dll output/  # Copy all DLLs in the current directory
+          # Add any other necessary files
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
         with:
-          name: Weatherapp.exe
-          path: Weatherapp.exe
+          name: WeatherApp
+          path: output/
