@@ -27,20 +27,20 @@ jobs:
         run: |
           mkdir build
           cd build
-          qmake ../Weatherapp.pro -r -spec win32-g++ CONFIG+=release
+          qmake ../Weatherapp.pro -r -spec win32-g++ CONFIG+=release  # Points directly to your .pro file
           dir  # Check if Makefile exists
-          mingw32-make || mingw-make  # Run correct MinGW make command
+          mingw32-make  # Only using mingw32-make
 
       - name: Deploy Qt Dependencies
         run: |
           cd build
-          windeployqt Weatherapp.exe  # Replace with actual .exe name
+          windeployqt WeatherApp.exe  # Ensure this matches your actual .exe filename
 
       - name: Package Executable
         run: |
           mkdir release
-          mv build/WeatherApp.exe release/
-          mv build/*.dll release/
+          mv WeatherApp.exe release/  # Moving the compiled .exe
+          mv *.dll release/  # Moving required DLLs
           tar -czvf release.tar.gz release/
 
       - name: Upload Artifact
